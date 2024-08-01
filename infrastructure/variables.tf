@@ -13,7 +13,7 @@ variable "users_path" {
 variable "user_id_path" {
     description = "path for the user id resource"
     type = string
-    default = "users/{user_id}"
+    default = "{user_id}"
 }
 
 variable "region" {

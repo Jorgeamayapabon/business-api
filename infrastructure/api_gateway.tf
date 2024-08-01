@@ -10,7 +10,7 @@ resource "aws_api_gateway_resource" "users_resource" {
 
 resource "aws_api_gateway_resource" "user_id_resource" {
   rest_api_id = aws_api_gateway_rest_api.rest_api.id
-  parent_id = aws_api_gateway_rest_api.rest_api.root_resource_id
+  parent_id = aws_api_gateway_resource.users_resource.id
   path_part = var.user_id_path
 }
 
@@ -42,7 +42,7 @@ resource "aws_api_gateway_method" "delete_user" {
   authorization = "NONE"
 }
 
-resource "aws_api_gateway_integration" "integration_api" {
+resource "aws_api_gateway_integration" "integration_api_post" {
     rest_api_id = aws_api_gateway_rest_api.rest_api.id
     resource_id = aws_api_gateway_resource.users_resource.id
     http_method = aws_api_gateway_method.post_users.http_method
@@ -78,10 +78,31 @@ resource "aws_api_gateway_integration" "integration_api_delete" {
     uri = aws_lambda_function.lambda.invoke_arn
 }
 
-resource "aws_lambda_permission" "lambda_permission" {
-  statement_id = "AllowExecutionFromAPIGateway"
-    action = "lambda:InvokeFunction"
-    function_name = aws_lambda_function.lambda.function_name
-    principal = "apigateway.amazonaws.com"
-    source_arn = "${aws_api_gateway_rest_api.rest_api.execution_arn}/*"
+resource "aws_api_gateway_deployment" "deploy_api" {
+  rest_api_id = aws_api_gateway_rest_api.rest_api.id
+
+  triggers = {
+    redeployment = sha1(jsonencode(aws_api_gateway_rest_api.rest_api.body))
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  depends_on = [ 
+    aws_api_gateway_integration.integration_api_post, 
+    aws_api_gateway_integration.integration_api_get, 
+    aws_api_gateway_integration.integration_api_put, 
+    aws_api_gateway_integration.integration_api_delete,
+    aws_api_gateway_method.put_user,
+    aws_api_gateway_method.get_user,
+    aws_api_gateway_method.post_users,
+    aws_api_gateway_method.delete_user
+  ]
+}
+
+resource "aws_api_gateway_stage" "name" {
+  deployment_id = aws_api_gateway_deployment.deploy_api.id
+  rest_api_id = aws_api_gateway_rest_api.rest_api.id
+  stage_name = "dev"
 }

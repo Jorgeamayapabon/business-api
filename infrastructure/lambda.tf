@@ -9,3 +9,11 @@ resource "aws_lambda_function" "lambda" {
         aws_cloudwatch_log_group.log_group
      ]
 }
+
+resource "aws_lambda_permission" "lambda_permission" {
+  statement_id = "AllowExecutionFromAPIGateway"
+    action = "lambda:InvokeFunction"
+    function_name = aws_lambda_function.lambda.function_name
+    principal = "apigateway.amazonaws.com"
+    source_arn = "${aws_api_gateway_rest_api.rest_api.execution_arn}/*"
+}
