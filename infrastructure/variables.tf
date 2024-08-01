@@ -16,6 +16,31 @@ variable "user_id_path" {
     default = "{user_id}"
 }
 
+variable "clients_path" {
+    description = "path for the clients resource"
+    type = string
+    default = "clients"
+  
+}
+
+variable "client_id_path" {
+    description = "path for the client id resource"
+    type = string
+    default = "{client_id}"
+}
+
+variable "sales_path" {
+    description = "path for the sales resource"
+    type = string
+    default = "sales"
+}
+
+variable "sale_id_path" {
+    description = "path for the sale id resource"
+    type = string
+    default = "{sale_id}"
+}
+
 variable "region" {
     description = "AWS region"
     type = string
