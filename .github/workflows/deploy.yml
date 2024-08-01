@@ -15,7 +15,7 @@ jobs:
 
       - name: Zip lambda_function.py
         run: |
-          zip -j infrastructure/business-api.zip lambda_function.py
+          zip -j infrastructure/business-api.zip ./*.py
 
       - name: Create terraform.tfvars
         run: |
