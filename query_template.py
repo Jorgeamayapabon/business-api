@@ -28,7 +28,7 @@ def create_user(body: dict):
         dict: A dictionary containing the HTTP status code and a message.
     """
     try:
-        user = db_consult(table_name=TABLE_USER, key_name="user_id", key_value=body["user_id"])
+        user = db_consult(table_name=TABLE_USER, key_name="user_id", key_value=str(body["user_id"]))
         
         if user:
             return {"statusCode": 409, "body": f"user_id -{body['user_id']}- already exists"}
@@ -61,7 +61,7 @@ def create_client(body: dict):
         dict: A dictionary containing the HTTP status code and a message.
     """
     try:
-        client = db_consult(table_name=TABLE_CLIENT, key_name="client_id", key_value=body["client_id"])
+        client = db_consult(table_name=TABLE_CLIENT, key_name="client_id", key_value=str(body["client_id"]))
         
         if client:
             return {"statusCode": 409, "body": f"client_id -{body['client_id']}- already exists"}
@@ -94,7 +94,7 @@ def create_sale(body: dict):
         dict: A dictionary containing the HTTP status code and a message.
     """
     try:
-        sale = db_consult(table_name=TABLE_SALE, key_name="sale_id", key_value=body["sale_id"])
+        sale = db_consult(table_name=TABLE_SALE, key_name="sale_id", key_value=str(body["sale_id"]))
         
         if sale:
             return {"statusCode": 409, "body": f"sale_id -{body['sale_id']}- already exists"}
