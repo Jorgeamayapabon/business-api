@@ -46,13 +46,13 @@ def http_create(path: str, body: dict):
     """
     try:
         if re.match(PATTERN_USERS_R_STR, path):
-            return HttpResponse(**create_user(body=body).model_dump())
+            return HttpResponse(**create_user(body=body)).model_dump()
 
         elif re.match(PATTERN_CLIENTS_R_STR, path):
-            return HttpResponse(**create_client(body=body).model_dump())
+            return HttpResponse(**create_client(body=body)).model_dump()
 
         elif re.match(PATTERN_SALES_R_STR, path):
-            return HttpResponse(**create_sale(body=body).model_dump())
+            return HttpResponse(**create_sale(body=body)).model_dump()
 
         else:
             return HttpResponse(statusCode=404, body=MESSAGE_404_STR).model_dump()
@@ -132,18 +132,18 @@ def http_update(path: str, body: dict):
 
         if re.match(PATTERN_USERS_ID_R_STR, path):
             return HttpResponse(
-                **update_user(user_id=path_split[-1], body=body).model_dump()
-            )
+                **update_user(user_id=path_split[-1], body=body)
+            ).model_dump()
 
         elif re.match(PATTERN_CLIENT_ID_R_STR, path):
             return HttpResponse(
-                **update_client(client_id=path_split[-1], body=body).model_dump()
-            )
+                **update_client(client_id=path_split[-1], body=body)
+            ).model_dump()
 
         elif re.match(PATTERN_SALE_ID_R_STR, path):
             return HttpResponse(
-                **update_sale(sale_id=path_split[-1], body=body).model_dump()
-            )
+                **update_sale(sale_id=path_split[-1], body=body)
+            ).model_dump()
 
         else:
             return HttpResponse(statusCode=404, body=MESSAGE_404_STR).model_dump()
