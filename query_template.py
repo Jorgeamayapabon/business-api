@@ -34,6 +34,8 @@ def create_user(body: dict):
 
         if status != 200:
             return {"statusCode": status, "body": MESSAGE_FAIL_CREATE_STR}
+        
+        return {"statusCode": 200, "body": user_item}
 
     except Exception as e:
         return {"statusCode": 500, "body": f"Error in create_user: {e}"}
@@ -60,6 +62,8 @@ def create_client(body: dict):
 
         if status != 200:
             return {"statusCode": status, "body": MESSAGE_FAIL_CREATE_STR}
+        
+        return {"statusCode": 200, "body": client_item}
 
     except Exception as e:
         return {"statusCode": 500, "body": f"Error in create_client: {e}"}
@@ -86,6 +90,8 @@ def create_sale(body: dict):
 
         if status != 200:
             return {"statusCode": status, "body": MESSAGE_FAIL_CREATE_STR}
+        
+        return {"statusCode": 200, "body": sale_item}
 
     except Exception as e:
         return {"statusCode": 500, "body": f"Error in create_sale: {e}"}
