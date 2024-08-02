@@ -1,5 +1,6 @@
 import json
 from pydantic import BaseModel
+from decimal import Decimal
 
 class HttpRequest(BaseModel):
     httpMethod: str
@@ -79,4 +80,4 @@ class Sale(BaseModel):
         return str(_id)
     
     def _cast_float(self):
-        return float(self.value)
+        return Decimal(self.value)
