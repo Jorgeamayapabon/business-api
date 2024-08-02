@@ -64,16 +64,18 @@ class Client(BaseModel):
 
 class Sale(BaseModel):
     sale_id: str | int
-    user_id: str
-    client_id: str
+    user_id: str | int
+    client_id: str | int
     value: float
 
     def __init__(self, **data):
         super().__init__(**data)
-        self.sale_id = self._cast_str()
+        self.sale_id = self._cast_str(self.sale_id)
+        self.user_id = self._cast_str(self.user_id)
+        self.client_id = self._cast_str(self.client_id)
     
-    def _cast_str(self):
-        if not isinstance(self.sale_id, str):
-            return str(self.sale_id)
+    def _cast_str(self, _id):
+        if not isinstance(_id, str):
+            return str(self._id)
 
-        return self.sale_id
+        return self._id
