@@ -66,13 +66,17 @@ class Sale(BaseModel):
     sale_id: str | int
     user_id: str | int
     client_id: str | int
-    value: float
+    value: float | int
 
     def __init__(self, **data):
         super().__init__(**data)
         self.sale_id = self._cast_str(self.sale_id)
         self.user_id = self._cast_str(self.user_id)
         self.client_id = self._cast_str(self.client_id)
+        self.value = self._cast_float()
     
     def _cast_str(self, _id):
         return str(_id)
+    
+    def _cast_float(self):
+        return float(self.value)
