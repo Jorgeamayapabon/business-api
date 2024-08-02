@@ -48,7 +48,7 @@ class User(BaseModel):
 
 class Client(BaseModel):
     client_id: str | int
-    name: str
+    fullname: str
     email: str
     
     def __init__(self, **data):
