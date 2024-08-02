@@ -75,11 +75,6 @@ variable "queue_sale_processor_name" {
   type        = string
 }
 
-variable "sns_event_topic_name" {
-  description = "Name of the SNS topic for the sales processor"
-  type        = string
-}
-
 variable "region" {
   description = "AWS region"
   type        = string

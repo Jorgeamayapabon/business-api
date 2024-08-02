@@ -1,27 +1,6 @@
 import json
+from typing import List
 from pydantic import BaseModel, field_validator
-
-class HttpRequest(BaseModel):
-    httpMethod: str
-    path: str
-    body: dict | None
-    
-    @field_validator("body", mode="before")
-    def validate_body(cls, value):
-        if not isinstance(value, dict):
-            return json.loads(value)
-        return value
-
-
-class HttpResponse(BaseModel):
-    statusCode: int
-    body: dict
-
-    @field_validator("body", mode="before")
-    def validate_body(cls, value):
-        if not isinstance(value, dict):
-            return json.loads({"message": value})
-        return value
 
 
 class User(BaseModel):
@@ -65,3 +44,22 @@ class Sale(BaseModel):
     @field_validator("client_id", mode="before")
     def validate_client_id(cls, value):
         return str(value)
+
+
+class BodyRecord(BaseModel):
+    user: User
+    client: Client
+    sale: Sale
+
+
+class RecordEvent(BaseModel):
+    body: BodyRecord
+    
+    @field_validator("body", mode="before")
+    def validate_body(cls, value):
+        if not isinstance(value, dict):
+            return json.loads(value)
+        return value
+
+class RecordsEvent(BaseModel):
+    Records: List[RecordEvent]

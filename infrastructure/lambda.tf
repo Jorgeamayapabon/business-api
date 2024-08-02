@@ -7,6 +7,7 @@ resource "aws_lambda_function" "lambda_api" {
   role          = aws_iam_role.lambda_api_role.arn
   filename      = "business-api.zip"
   layers = [ aws_lambda_layer_version.business_api_layer.arn ]
+  timeout = 120
 
   depends_on = [
     aws_iam_role_policy_attachment.lambda_attachment,
@@ -49,7 +50,8 @@ resource "aws_lambda_function" "lambda_sales_processor" {
   runtime       = "python3.10"
   role          = aws_iam_role.lambda_sales_processor_role.arn
   filename      = "sales-processor.zip"
-  # layers = [ aws_lambda_layer_version.business_api_layer.arn ]
+  layers = [ aws_lambda_layer_version.business_api_layer.arn ]
+  timeout = 120
 
   depends_on = [
     aws_iam_role_policy_attachment.lambda_sales_processor_attachment,
@@ -62,8 +64,8 @@ resource "aws_lambda_function" "lambda_sales_processor" {
       table_client = var.table_client_name,
       table_sale = var.table_sale_name
       queue_sale_processor = var.queue_sale_processor_name
-      sns_event_topic = var.sns_event_topic_name
       region = var.region
+      sns_topic_arn = aws_sns_topic.notification.arn
     }
   }
 }
