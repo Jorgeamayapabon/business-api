@@ -75,7 +75,4 @@ class Sale(BaseModel):
         self.client_id = self._cast_str(self.client_id)
     
     def _cast_str(self, _id):
-        if not isinstance(_id, str):
-            return str(self._id)
-
-        return self._id
+        return str(_id)
