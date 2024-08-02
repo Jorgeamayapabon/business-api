@@ -1,5 +1,5 @@
 from base_models import Client, Sale, User
-from business_api.service_sqs import request_to_sqs_fifo
+from service_sqs import request_to_sqs_fifo
 from constants import (
     AWS_REGION,
     MESSAGE_FAIL_CREATE_STR,

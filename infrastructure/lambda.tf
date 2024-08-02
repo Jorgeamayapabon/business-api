@@ -19,6 +19,7 @@ resource "aws_lambda_function" "lambda_api" {
       table_client = var.table_client_name,
       table_sale = var.table_sale_name,
       queue_sale_processor = var.queue_sale_processor_name
+      region = var.region
     }
   }
 }
@@ -62,6 +63,7 @@ resource "aws_lambda_function" "lambda_sales_processor" {
       table_sale = var.table_sale_name
       queue_sale_processor = var.queue_sale_processor_name
       sns_event_topic = var.sns_event_topic_name
+      region = var.region
     }
   }
 }
@@ -73,4 +75,10 @@ resource "aws_lambda_permission" "permission_execution_sqs" {
   function_name = aws_lambda_function.lambda_sales_processor.function_name
   principal     = "sqs.amazonaws.com"
   source_arn    = aws_sqs_queue.queue_sale_processor.arn
+}
+
+resource "aws_lambda_event_source_mapping" "trigger_sales_processor" {
+  event_source_arn = aws_sqs_queue.queue_sale_processor.arn
+  function_name    = aws_lambda_function.lambda_sales_processor.function_name
+  batch_size       = 1
 }
