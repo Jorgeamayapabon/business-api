@@ -13,13 +13,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Zip lambda_function.py
+      - name: Zip lambda business_api
         run: |
-          zip -j infrastructure/business-api.zip ./*.py
+          zip -j infrastructure/business-api.zip ./business_api/*.py
+
+      - name: Zip layers
+        run: |
+          pip install -r ./requirements.txt --platform=manylinux2014_x86_64 --only-binary=:all: --target python/lib/python3.10/site-packages
+          zip -j infrastructure/business-api-layer.zip ./python
 
       - name: Create terraform.tfvars
         run: |
           echo 'account_id = "${{ secrets.AWS_ACCOUNT_ID }}"' > infrastructure/terraform.tfvars
+          echo 'region = "${{ secrets.AWS_REGION }}"' >> infrastructure/terraform.tfvars
+          echo 'queue_sale_processor_name = "${{ secrets.QUEUE_SALE_PROCESSOR_NAME }}"' >> infrastructure/terraform.tfvars
+          echo 'queue_sale_processor_url = "${{ secrets.QUEUE_SALE_PROCESSOR_URL }}"' >> infrastructure/terraform.tfvars
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4

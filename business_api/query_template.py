@@ -1,11 +1,15 @@
 from base_models import Client, Sale, User
+from business_api.service_sqs import request_to_sqs_fifo
 from constants import (
+    AWS_REGION,
     MESSAGE_FAIL_CREATE_STR,
     MESSAGE_404_CLIENT_STR,
     MESSAGE_404_SALE_STR,
     MESSAGE_404_USER_STR,
     MESSAGE_FAIL_DELETE_STR,
     MESSAGE_FAIL_UPDATE_STR,
+    MESSAGE_PROCESSING_SALE_STR,
+    QUEUE_SALE_PROCESSOR,
     TABLE_CLIENT,
     TABLE_SALE,
     TABLE_USER,
@@ -28,18 +32,23 @@ def create_user(body: dict):
         dict: A dictionary containing the HTTP status code and a message.
     """
     try:
-        user = db_consult(table_name=TABLE_USER, key_name="user_id", key_value=str(body["user_id"]))
-        
+        user = db_consult(
+            table_name=TABLE_USER, key_name="user_id", key_value=str(body["user_id"])
+        )
+
         if user:
-            return {"statusCode": 409, "body": f"user_id -{body['user_id']}- already exists"}
-       
+            return {
+                "statusCode": 409,
+                "body": f"user_id -{body['user_id']}- already exists",
+            }
+
         user_item = User(**body).model_dump()
 
         status = db_insert(table_name=TABLE_USER, item=user_item)
 
         if status != 200:
             return {"statusCode": status, "body": MESSAGE_FAIL_CREATE_STR}
-        
+
         return {"statusCode": 200, "body": user_item}
 
     except Exception as e:
@@ -61,10 +70,17 @@ def create_client(body: dict):
         dict: A dictionary containing the HTTP status code and a message.
     """
     try:
-        client = db_consult(table_name=TABLE_CLIENT, key_name="client_id", key_value=str(body["client_id"]))
-        
+        client = db_consult(
+            table_name=TABLE_CLIENT,
+            key_name="client_id",
+            key_value=str(body["client_id"]),
+        )
+
         if client:
-            return {"statusCode": 409, "body": f"client_id -{body['client_id']}- already exists"}
+            return {
+                "statusCode": 409,
+                "body": f"client_id -{body['client_id']}- already exists",
+            }
 
         client_item = Client(**body).model_dump()
 
@@ -72,7 +88,7 @@ def create_client(body: dict):
 
         if status != 200:
             return {"statusCode": status, "body": MESSAGE_FAIL_CREATE_STR}
-        
+
         return {"statusCode": 200, "body": client_item}
 
     except Exception as e:
@@ -94,19 +110,44 @@ def create_sale(body: dict):
         dict: A dictionary containing the HTTP status code and a message.
     """
     try:
-        sale = db_consult(table_name=TABLE_SALE, key_name="sale_id", key_value=str(body["sale_id"]))
-        
+        sale = db_consult(
+            table_name=TABLE_SALE, key_name="sale_id", key_value=str(body["sale_id"])
+        )
+
         if sale:
-            return {"statusCode": 409, "body": f"sale_id -{body['sale_id']}- already exists"}
-        
+            return {
+                "statusCode": 409,
+                "body": f"sale_id -{body['sale_id']}- already exists",
+            }
+
         sale_item = Sale(**body).model_dump()
 
-        status = db_insert(table_name=TABLE_SALE, item=sale_item)
+        user = db_consult(
+            table_name=TABLE_USER, key_name="user_id", key_value=str(body["user_id"])
+        )
+        user_item = User(**user)
 
-        if status != 200:
-            return {"statusCode": status, "body": MESSAGE_FAIL_CREATE_STR}
-        
-        return {"statusCode": 200, "body": sale_item}
+        client = db_consult(
+            table_name=TABLE_CLIENT,
+            key_name="client_id",
+            key_value=str(body["client_id"]),
+        )
+        client_item = Client(**client)
+
+        queue_item = {
+            "user": user_item.model_dump(),
+            "client": client_item.model_dump(),
+            "sale": sale_item,
+        }
+
+        request_to_sqs_fifo(
+            message_group_id=user_item.user_id,
+            queue_item=queue_item,
+            region_name=AWS_REGION,
+            queue_name=QUEUE_SALE_PROCESSOR,
+        )
+
+        return {"statusCode": 200, "body": MESSAGE_PROCESSING_SALE_STR}
 
     except Exception as e:
         return {"statusCode": 500, "body": f"Error in create_sale: {e}"}
