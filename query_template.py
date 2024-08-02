@@ -187,7 +187,7 @@ def retrieve_sale(sale_id: str):
         sale = db_consult(table_name=TABLE_SALE, key_name="sale_id", key_value=sale_id)
 
         if sale:
-            return {"statusCode": 200, "body": sale}
+            return {"statusCode": 200, "body": Sale(**sale).model_dump()}
 
         return {"statusCode": 404, "body": MESSAGE_404_SALE_STR}
 
