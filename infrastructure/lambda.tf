@@ -89,7 +89,7 @@ resource "aws_lambda_event_source_mapping" "trigger_sales_processor" {
 ### Lambda function for processing events
 # Lambda function for processing sales
 resource "aws_lambda_function" "lambda_event_processor" {
-  function_name = var.lambda_sales_processor_name
+  function_name = var.lambda_event_processor_name
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.10"
   role          = aws_iam_role.lambda_event_processor_role.arn
@@ -112,7 +112,7 @@ resource "aws_lambda_function" "lambda_event_processor" {
 resource "aws_lambda_permission" "allow_eventbridge" {
   statement_id  = "AllowExecutionFromEventBridge"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.lambda_sales_processor.function_name
+  function_name = aws_lambda_function.lambda_event_processor.function_name
   principal     = "events.amazonaws.com"
   source_arn    = aws_cloudwatch_event_rule.dynamodb_update_rule.arn
 }
