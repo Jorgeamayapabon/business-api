@@ -16,13 +16,14 @@ class HttpRequest(BaseModel):
 
 class HttpResponse(BaseModel):
     statusCode: int
-    body: dict
+    body: str
 
     @field_validator("body", mode="before")
     def validate_body(cls, value):
-        if not isinstance(value, dict):
-            return json.loads({"message": value})
-        return value
+        if not isinstance(value, str):
+            return json.dumps(value)
+        
+        return json.dumps({"message": value})
 
 
 class User(BaseModel):
