@@ -1,0 +1,55 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Zip lambda business_api
+        run: |
+          zip -j infrastructure/business-api.zip ./business_api/*.py
+
+      - name: Zip layers
+        run: |
+          pip install -r ./requirements.txt --platform=manylinux2014_x86_64 --only-binary=:all: --target python/lib/python3.10/site-packages
+          zip -j infrastructure/business-api-layer.zip ./python
+
+      - name: Create terraform.tfvars
+        run: |
+          echo 'account_id = "${{ secrets.AWS_ACCOUNT_ID }}"' > infrastructure/terraform.tfvars
+          echo 'region = "${{ secrets.AWS_REGION }}"' >> infrastructure/terraform.tfvars
+          echo 'queue_sale_processor_name = "${{ secrets.QUEUE_SALE_PROCESSOR_NAME }}"' >> infrastructure/terraform.tfvars
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Install Terraform
+        run: |
+          sudo apt-get update && sudo apt-get install -y gnupg software-properties-common curl
+          curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+          sudo apt update && sudo apt install terraform
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ./infrastructure
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+        working-directory: ./infrastructure
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan
+        working-directory: ./infrastructure
