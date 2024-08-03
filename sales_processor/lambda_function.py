@@ -20,10 +20,11 @@ def lambda_handler(event, context):
         if status != 200:
             request_to_sns(message=MESSAGE_SALE_NOT_PROCESSED)
         
-        message = "Sale processed successfully." + \
-                  f"\nUser: {user.name}" + \
-                  f"\nClient: {client.name}" + \
-                  f"\nValue: {sale.value}"
+        message = "Sale processed successfully.\n\n" + \
+                  f"User: {user.fullname}\n" + \
+                  f"Client: {client.fullname}\n" + \
+                  f"Value: {sale.value}\n"
+        
         request_to_sns(message=message)
 
     except Exception:

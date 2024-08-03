@@ -1,4 +1,5 @@
 from base_models import Client, Sale, User
+from service_event import event_bridge_put_event
 from service_sqs import request_to_sqs_fifo
 from constants import (
     AWS_REGION,
@@ -169,7 +170,7 @@ def retrieve_user(user_id: str):
               the user data or an error message.
     """
     try:
-        user = db_consult(table_name=TABLE_USER, key_name="user_id", key_value=user_id)
+        user = db_consult(table_name=TABLE_USER, key_name="user_id", key_value=str(user_id))
 
         if user:
             return {"statusCode": 200, "body": user}
@@ -253,6 +254,13 @@ def update_user(user_id: str, body: dict):
         dict: A dictionary containing the HTTP status code and a message.
     """
     try:
+        user = db_consult(
+            table_name=TABLE_USER, key_name="user_id", key_value=str(body["user_id"])
+        )
+        
+        if not user:
+            return {"statusCode": 404, "body": MESSAGE_404_USER_STR}
+        
         body.update({"user_id": user_id})
 
         user_item = User(**body).model_dump()
@@ -285,14 +293,27 @@ def update_client(client_id: str, body: dict):
         dict: A dictionary containing the HTTP status code and a message.
     """
     try:
+        client = db_consult(
+            table_name=TABLE_CLIENT, key_name="client_id", key_value=client_id
+        )
+        
+        if not client:
+            return {"statusCode": 404, "body": MESSAGE_404_CLIENT_STR}
+        
         body.update({"client_id": client_id})
 
-        client_item = Client(**body).model_dump()
+        client_item = Client(**body)
 
-        status = db_insert(table_name=TABLE_CLIENT, item=client_item)
+        status = db_insert(table_name=TABLE_CLIENT, item=client_item.model_dump())
 
         if status != 200:
             return {"statusCode": status, "body": MESSAGE_FAIL_UPDATE_STR}
+
+        event_bridge_put_event(
+            source="business-api",
+            detail_type="client_updated",
+            detail=client_item.model_dump_json(),
+        )
 
         return {"statusCode": 200, "body": f"Client {client_id} updated successfully"}
 
@@ -317,6 +338,11 @@ def update_sale(sale_id: str, body: dict):
         dict: A dictionary containing the HTTP status code and a message.
     """
     try:
+        sale = db_consult(table_name=TABLE_SALE, key_name="sale_id", key_value=sale_id)
+        
+        if not sale:
+            return {"statusCode": 404, "body": MESSAGE_404_SALE_STR}
+            
         body.update({"sale_id": sale_id})
 
         sale_item = Sale(**body).model_dump()
@@ -347,6 +373,11 @@ def delete_user(user_id: str):
         dict: A dictionary containing the HTTP status code and a message.
     """
     try:
+        user = db_consult(table_name=TABLE_USER, key_name="user_id", key_value=str(user_id))
+        
+        if not user:
+            return {"statusCode": 404, "body": MESSAGE_404_USER_STR}
+        
         status = db_delete(table_name=TABLE_USER, key_name="user_id", key_value=user_id)
 
         if status != 200:
@@ -373,6 +404,13 @@ def delete_client(client_id: str):
         dict: A dictionary containing the HTTP status code and a message.
     """
     try:
+        client = db_consult(
+            table_name=TABLE_CLIENT, key_name="client_id", key_value=client_id
+        )
+        
+        if not client:
+            return {"statusCode": 404, "body": MESSAGE_404_CLIENT_STR}
+        
         status = db_delete(
             table_name=TABLE_CLIENT, key_name="client_id", key_value=client_id
         )
@@ -401,6 +439,12 @@ def delete_sale(sale_id: str):
         dict: A dictionary containing the HTTP status code and a message.
     """
     try:
+        sale = db_consult(table_name=TABLE_SALE, key_name="sale_id", key_value=sale_id)
+        
+        if not sale:
+            return {"statusCode": 404, "body": MESSAGE_404_SALE_STR}
+            
+            
         status = db_delete(table_name=TABLE_SALE, key_name="sale_id", key_value=sale_id)
 
         if status != 200:
