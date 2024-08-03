@@ -85,6 +85,23 @@ resource "aws_lambda_event_source_mapping" "trigger_sales_processor" {
   batch_size       = 1
 }
 
+
+### Lambda function for processing events
+# Lambda function for processing sales
+resource "aws_lambda_function" "lambda_event_processor" {
+  function_name = var.lambda_sales_processor_name
+  handler       = "lambda_function.lambda_handler"
+  runtime       = "python3.10"
+  role          = aws_iam_role.lambda_event_processor_role.arn
+  filename      = "event-processor.zip"
+  timeout = 50
+
+  depends_on = [
+    aws_iam_role_policy_attachment.lambda_event_processor_attachment,
+    aws_cloudwatch_log_group.log_group_event_processor
+  ]
+}
+
 # Lambda permission for EventBridge
 resource "aws_lambda_permission" "allow_eventbridge" {
   statement_id  = "AllowExecutionFromEventBridge"

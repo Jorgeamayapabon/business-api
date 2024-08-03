@@ -129,3 +129,55 @@ resource "aws_iam_role_policy_attachment" "lambda_sales_processor_attachment" {
   role       = aws_iam_role.lambda_sales_processor_role.name
   policy_arn = aws_iam_policy.lambda_sales_processor.arn
 }
+
+
+### IAM Policy for Lambda Sales Processor
+# iam policy document to lambda api
+data "aws_iam_policy_document" "policy_lambda_event_processor" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+    resources = ["arn:aws:logs:*:*:*"]
+  }
+
+  statement {
+    effect    = "Allow"
+    actions   = ["sns:*"]
+    resources = ["*"]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "events:*",
+      "schemas:*",
+      "scheduler:*",
+      "pipes:*"
+    ]
+    resources = ["*"]
+  }
+}
+
+# iam role lambda event processor
+resource "aws_iam_role" "lambda_event_processor_role" {
+  name               = "lambda_event_processor_role"
+  assume_role_policy = data.aws_iam_policy_document.policy_lambda_role.json
+}
+
+# iam policy
+resource "aws_iam_policy" "lambda_event_processor" {
+  name        = "lambda_event_processor_policy"
+  policy      = data.aws_iam_policy_document.policy_lambda_event_processor.json
+  path        = "/"
+  description = "IAM policy for logging from a lambda function"
+}
+
+# iam policy attachment event processor
+resource "aws_iam_role_policy_attachment" "lambda_event_processor_attachment" {
+  role       = aws_iam_role.lambda_event_processor_role.name
+  policy_arn = aws_iam_policy.lambda_event_processor.arn
+}

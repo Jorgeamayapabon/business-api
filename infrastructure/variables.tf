@@ -10,6 +10,12 @@ variable "lambda_sales_processor_name" {
   default     = "sales_processor"
 }
 
+variable "lambda_event_processor_name" {
+  description = "name of the lambda event processor function"
+  type        = string
+  default     = "event_processor"
+}
+
 variable "users_path" {
   description = "path for the users resource"
   type        = string

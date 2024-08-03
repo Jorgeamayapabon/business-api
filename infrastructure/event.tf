@@ -9,5 +9,5 @@ resource "aws_cloudwatch_event_rule" "dynamodb_update_rule" {
 resource "aws_cloudwatch_event_target" "dynamodb_update_target" {
   rule      = aws_cloudwatch_event_rule.dynamodb_update_rule.name
   target_id = "dynamodb_update_target"
-  arn       = aws_lambda_function.lambda_sales_processor.arn
+  arn       = aws_lambda_function.lambda_event_processor.arn
 }
