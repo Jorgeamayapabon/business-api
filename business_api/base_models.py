@@ -8,8 +8,9 @@ class HttpRequest(BaseModel):
     
     @field_validator("body", mode="before")
     def validate_body(cls, value):
-        if not isinstance(value, dict):
+        if value and not isinstance(value, dict):
             return json.loads(value)
+
         return value
 
 
