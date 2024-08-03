@@ -51,7 +51,7 @@ resource "aws_lambda_function" "lambda_sales_processor" {
   role          = aws_iam_role.lambda_sales_processor_role.arn
   filename      = "sales-processor.zip"
   layers = [ aws_lambda_layer_version.business_api_layer.arn ]
-  timeout = 120
+  timeout = 50
 
   depends_on = [
     aws_iam_role_policy_attachment.lambda_sales_processor_attachment,
