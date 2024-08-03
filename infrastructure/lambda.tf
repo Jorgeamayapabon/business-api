@@ -100,6 +100,12 @@ resource "aws_lambda_function" "lambda_event_processor" {
     aws_iam_role_policy_attachment.lambda_event_processor_attachment,
     aws_cloudwatch_log_group.log_group_event_processor
   ]
+
+  environment {
+    variables = {
+      sns_topic_arn = aws_sns_topic.notification.arn
+    }
+  }
 }
 
 # Lambda permission for EventBridge
