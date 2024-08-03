@@ -84,3 +84,12 @@ resource "aws_lambda_event_source_mapping" "trigger_sales_processor" {
   function_name    = aws_lambda_function.lambda_sales_processor.function_name
   batch_size       = 1
 }
+
+# Lambda permission for EventBridge
+resource "aws_lambda_permission" "allow_eventbridge" {
+  statement_id  = "AllowExecutionFromEventBridge"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.lambda_sales_processor.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.dynamodb_update_rule.arn
+}

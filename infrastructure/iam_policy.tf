@@ -22,6 +22,17 @@ data "aws_iam_policy_document" "policy_lambda_api" {
     actions   = ["dynamodb:*"]
     resources = ["*"]
   }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "events:*",
+      "schemas:*",
+      "scheduler:*",
+      "pipes:*"
+    ]
+    resources = ["*"]
+  }
 }
 
 # iam policy document to lambda role
