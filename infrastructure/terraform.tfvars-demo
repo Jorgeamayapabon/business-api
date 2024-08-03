@@ -1,0 +1,3 @@
+account_id                = "xxxxxxxxxxxx"
+queue_sale_processor_name = "xyz.fifo"
+region                    = "xx-xxxx-x"

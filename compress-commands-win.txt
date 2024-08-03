@@ -1,0 +1,8 @@
+// Zip lambda api files
+Compress-Archive -Path .\business_api\*.py -DestinationPath .\infrastructure\business-api.zip -f
+
+// Zip lambda sales processor
+Compress-Archive -Path .\sales_processor\*.py -DestinationPath .\infrastructure\sales-processor.zip -f
+
+// Zip lambda event processor
+Compress-Archive -Path .\event_processor\*.py -DestinationPath .\infrastructure\event-processor.zip -f

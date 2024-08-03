@@ -163,5 +163,3 @@ cython_debug/
 
 /python
 *.zip
-
-compress-commands-win.txt
